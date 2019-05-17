@@ -1,0 +1,14 @@
+{
+  "yemekler": [
+    {
+      "isim":"menemen",
+      "malzemeler":["domates","biber","yumurta"],
+      "adimlar": [
+        "Domatesleri ve biberleri ince bir sekilde dograyip tavaya koyun",
+        "Tavayi acik atese koyup domatesler suyunu salana kadar pisirin",
+        "Atesin altini kisip yumurtayi tavaya kirin ve 5 dk kisik ateste pisirin"
+      ],
+      "zorluk": 2
+    }
+  ]
+}
