@@ -12,7 +12,7 @@ recipesOld = {
     "yemekler": []
 }
 recipesNew = {
-    "yemekler": []
+    "yemekler": {}
 }
 recipesExtra = {
     "yemekler": {}
@@ -92,8 +92,7 @@ class ErrbackSpider(scrapy.Spider):
             "tur": foodType[1]
         })
 
-        recipesNew["yemekler"].append({
-            name: {
+        recipesNew["yemekler"][name] = {
                 "malzemeler": selectorIngredients,
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
@@ -101,7 +100,6 @@ class ErrbackSpider(scrapy.Spider):
                 "pisirme": times[1],
                 "tur": foodType[1]
             }
-        })
 
     def errback_httpbin(self, failure):
         # log all failures
