@@ -1,4 +1,4 @@
-from useragents import user_agent_list
+from statics import user_agent_list, ingredientFilter, nameFilter
 import re
 import scrapy
 import random
@@ -11,15 +11,16 @@ from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
 from twisted.internet.error import TimeoutError, TCPTimedOutError
 
-recipesOld = {
-    "yemekler": []
-}
+recipesOld = []
 recipesNew = {
     "yemekler": {}
 }
 recipesExtra = {
     "yemekler": {}
 }
+
+foodTypes = []
+foodNames = []
 
 prefix = "https://www.nefisyemektarifleri.com/kategori/tarifler/"
 MAX_PAGE = 30
@@ -29,25 +30,59 @@ new = open("new.json", "w")
 extra = open("extra.json", "w")
 
 
+# DO NOT USE DICTS ON FILTERS, HASH FUNCTION FUCKS OUR TURKISH CHARACTERS
+
+
 def createJSON():
     json.dump(recipesOld, old, ensure_ascii=False)
     json.dump(recipesNew, new, ensure_ascii=False)
+    recipesExtra["types"] = foodTypes
     json.dump(recipesExtra, extra, ensure_ascii=False)
 
 
 def checkAfiyet(recipe):
-    for filter in ["afiyet", "youtube"]:
+    for filter in ["afiyet", "youtube", "instagram"]:
         if filter in recipe.lower():
             return False
     return True
+
+
+def checkTurkish(s):
+    return re.sub(r'[^A-Za-z0-9ğüşıöçİĞÜŞÖÇ\-\ ]', '', s)
 
 
 def checkTurkishForName(s):
     return re.sub(r'[^A-Za-zğüşıöçİĞÜŞÖÇ\ ]', '', s)
 
 
-def checkTurkish(s):
-    return re.sub(r'[^A-Za-z0-9ğüşıöçİĞÜŞÖÇ\ ]', '', s)
+def checkIngredients(s):
+    return re.sub(r'[^A-Za-zğüşıöçİĞÜŞÖÇ\ ]', '', s)
+
+
+def checkName(s):
+    parsed = s.split(" ")
+    for filter in nameFilter:
+        for i in range(len(parsed)):
+            if parsed[i].lower() == filter:
+                parsed[i] = ""
+    return " ".join(parsed)
+
+
+def checkIngredientsForDb(ingredients):
+    new = []
+    for i in range(len(ingredients)):
+        parsed = ingredients[i].split(" ")
+        if len(parsed) > 5:
+            continue
+        for j in range(len(parsed)):
+            if checkIngredients(parsed[j].lower()) in ingredientFilter:
+                parsed[j] = None
+        result = checkIngredients(
+            " ".join(item for item in parsed if item)).strip().lower()
+        if result != "":
+            new.append(result)
+
+    return new
 
 
 def clearRecipe(recipe):
@@ -155,6 +190,10 @@ class ErrbackSpider(scrapy.Spider):
     def parse_httpbinfood(self, response):
         name = checkTurkishForName(str(response.selector.xpath(
             '//h1[@itemprop="name"]/text()').get()).split("(")[0].strip())
+        name = checkName(name)
+        if name in foodNames:
+            return
+        foodNames.append(name)
         selectorIngredients = response.selector.xpath(
             '//div[@class="entry_content tagoninread"]/ul/li[@itemprop="ingredients"]/text()').getall()
         selectorRecipe = response.selector.xpath(
@@ -166,7 +205,7 @@ class ErrbackSpider(scrapy.Spider):
             '//div[@class="tarif_meta_box"]/span/strong/text()').getall()
         foodType = response.selector.xpath(
             '//a[@class="taxonomy category"]/text()').getall()
-        recipesOld["yemekler"].append({
+        recipesOld.append({
             "isim": name,
             "malzemeler": selectorIngredients,
             "adimlar": selectorRecipe,
@@ -189,6 +228,7 @@ class ErrbackSpider(scrapy.Spider):
             recipesExtra["yemekler"][foodType[1]] = {}
             recipesExtra["yemekler"][foodType[1]][name] = {
                 "malzemeler": selectorIngredients,
+                "malzemeler_db": checkIngredientsForDb(selectorIngredients),
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
                 "hazirlama": times[0],
@@ -197,11 +237,14 @@ class ErrbackSpider(scrapy.Spider):
         else:
             recipesExtra["yemekler"][foodType[1]][name] = {
                 "malzemeler": selectorIngredients,
+                "malzemeler_db": checkIngredientsForDb(selectorIngredients),
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
                 "hazirlama": times[0],
                 "pisirme": times[1] if len(times) > 1 else 0,
             }
+            if foodType[1] not in foodTypes:
+                foodTypes.append(foodType[1])
 
     def errback_httpbin(self, failure):
         # log all failures
