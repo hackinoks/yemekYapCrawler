@@ -93,12 +93,30 @@ class ErrbackSpider(scrapy.Spider):
         })
 
         recipesNew["yemekler"][name] = {
+            "malzemeler": selectorIngredients,
+            "adimlar": selectorRecipe,
+            "kisilik": portion,
+            "hazirlama": times[0],
+            "pisirme": times[1],
+            "tur": foodType[1]
+        }
+
+        if foodType[1] not in recipesExtra["yemekler"].keys():
+            recipesExtra["yemekler"][foodType[1]] = {}
+            recipesExtra["yemekler"][foodType[1]][name] = {
                 "malzemeler": selectorIngredients,
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
                 "hazirlama": times[0],
                 "pisirme": times[1],
-                "tur": foodType[1]
+            }
+        else:
+            recipesExtra["yemekler"][foodType[1]][name] = {
+                "malzemeler": selectorIngredients,
+                "adimlar": selectorRecipe,
+                "kisilik": portion,
+                "hazirlama": times[0],
+                "pisirme": times[1],
             }
 
     def errback_httpbin(self, failure):
