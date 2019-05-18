@@ -8,17 +8,28 @@ from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
 from twisted.internet.error import TimeoutError, TCPTimedOutError
 
-recipes = {
+recipesOld = {
     "yemekler": []
 }
+recipesNew = {
+    "yemekler": []
+}
+recipesExtra = {
+    "yemekler": {}
+}
+
 prefix = "https://www.nefisyemektarifleri.com/kategori/tarifler/"
 MAX_PAGE = 3
 
-out = open("hede.json", "w")
+old = open("old.json", "w")
+new = open("new.json", "w")
+extra = open("extra.json", "w")
 
 
 def createJSON():
-    json.dump(recipes, out, ensure_ascii=False)
+    json.dump(recipesOld, old, ensure_ascii=False)
+    json.dump(recipesNew, new, ensure_ascii=False)
+    json.dump(recipesExtra, extra, ensure_ascii=False)
 
 
 class ErrbackSpider(scrapy.Spider):
@@ -71,7 +82,7 @@ class ErrbackSpider(scrapy.Spider):
             '//div[@class="tarif_meta_box"]/span/strong/text()').getall()
         foodType = response.selector.xpath(
             '//a[@class="taxonomy category"]/text()').getall()
-        recipes["yemekler"].append({
+        recipesOld["yemekler"].append({
             "isim": name,
             "malzemeler": selectorIngredients,
             "adimlar": selectorRecipe,
@@ -79,6 +90,17 @@ class ErrbackSpider(scrapy.Spider):
             "hazirlama": times[0],
             "pisirme": times[1],
             "tur": foodType[1]
+        })
+
+        recipesNew["yemekler"].append({
+            name: {
+                "malzemeler": selectorIngredients,
+                "adimlar": selectorRecipe,
+                "kisilik": portion,
+                "hazirlama": times[0],
+                "pisirme": times[1],
+                "tur": foodType[1]
+            }
         })
 
     def errback_httpbin(self, failure):
