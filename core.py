@@ -12,20 +12,25 @@ recipes = {
     "yemekler": []
 }
 prefix = "https://www.nefisyemektarifleri.com/kategori/tarifler/"
-MAX_PAGE = 2
+MAX_PAGE = 3
 
 out = open("hede.json", "w")
 
 
 def createJSON():
-    print(json.dumps(recipes, ensure_ascii=False), file=out)
+    json.dump(recipes, out, ensure_ascii=False)
 
 
 class ErrbackSpider(scrapy.Spider):
     name = "errback_example"
     start_urls = [
         "corba-tarifleri",
-        "kahvaltilik-tarifleri"
+        "kahvaltilik-tarifleri",
+        "aperatifler-tarifler",
+        "bakliyat-yemekleri",
+        "et-yemekleri",
+        "yumurta-yemekleri",
+        "hizli-yemekler"
     ]
 
     custom_settings = {
@@ -64,13 +69,16 @@ class ErrbackSpider(scrapy.Spider):
             '//span[@itemprop="recipeYield"]/strong/text()').get()
         times = response.selector.xpath(
             '//div[@class="tarif_meta_box"]/span/strong/text()').getall()
+        foodType = response.selector.xpath(
+            '//a[@class="taxonomy category"]/text()').getall()
         recipes["yemekler"].append({
             "isim": name,
             "malzemeler": selectorIngredients,
             "adimlar": selectorRecipe,
             "kisilik": portion,
             "hazirlama": times[0],
-            "pisirme": times[1]
+            "pisirme": times[1],
+            "tur": foodType[1]
         })
 
     def errback_httpbin(self, failure):
