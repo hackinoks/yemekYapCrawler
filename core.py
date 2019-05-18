@@ -71,7 +71,7 @@ class ErrbackSpider(scrapy.Spider):
                                  headers={'User-Agent': user_agent})
 
     def parse_httpbinfood(self, response):
-        name = response.selector.xpath('//h1[@itemprop="name"]/text()').get()
+        name = str(response.selector.xpath('//h1[@itemprop="name"]/text()').get()).split("(")[0].strip()
         selectorIngredients = response.selector.xpath(
             '//div[@class="entry_content tagoninread"]/ul/li[@itemprop="ingredients"]/text()').getall()
         selectorRecipe = response.selector.xpath(
