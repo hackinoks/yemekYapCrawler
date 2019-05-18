@@ -1,8 +1,11 @@
 from useragents import user_agent_list
+import re
 import scrapy
 import random
 import json
 import atexit
+
+from itertools import filterfalse
 
 from scrapy.spidermiddlewares.httperror import HttpError
 from twisted.internet.error import DNSLookupError
@@ -19,7 +22,7 @@ recipesExtra = {
 }
 
 prefix = "https://www.nefisyemektarifleri.com/kategori/tarifler/"
-MAX_PAGE = 3
+MAX_PAGE = 30
 
 old = open("old.json", "w")
 new = open("new.json", "w")
@@ -32,6 +35,25 @@ def createJSON():
     json.dump(recipesExtra, extra, ensure_ascii=False)
 
 
+def checkAfiyet(recipe):
+    for filter in ["afiyet", "youtube"]:
+        if filter in recipe.lower():
+            return False
+    return True
+
+
+def checkTurkishForName(s):
+    return re.sub(r'[^A-Za-zğüşıöçİĞÜŞÖÇ\ ]', '', s)
+
+
+def checkTurkish(s):
+    return re.sub(r'[^A-Za-z0-9ğüşıöçİĞÜŞÖÇ\ ]', '', s)
+
+
+def clearRecipe(recipe):
+    return [checkTurkish(x) for x in recipe if checkAfiyet(x)]
+
+
 class ErrbackSpider(scrapy.Spider):
     name = "errback_example"
     start_urls = [
@@ -41,16 +63,24 @@ class ErrbackSpider(scrapy.Spider):
         "bakliyat-yemekleri",
         "et-yemekleri",
         "yumurta-yemekleri",
-        "hizli-yemekler"
+        "hizli-yemekler",
+        "tatli-tarifleri",
+        "diyet",
+        "salata-meze-kanepe",
+        "icecek-tarifleri",
+        "hamurisi-tarifleri",
+        "pilav-tarifleri",
+        "sandvic-tarifleri-tarifler",
+        "sebze-yemekleri"
     ]
 
     custom_settings = {
-        "CONCURRENT_REQUESTS": 1
+        "CONCURRENT_REQUESTS": 16
     }
 
     def start_requests(self):
         for u in self.start_urls:
-            for page in range(1, MAX_PAGE):
+            for page in range(1, MAX_PAGE + 1):
                 url = prefix + u + "/page/" + str(page) + "/"
                 user_agent = random.choice(user_agent_list)
                 yield scrapy.Request(url, callback=self.parse_httpbin,
@@ -71,11 +101,13 @@ class ErrbackSpider(scrapy.Spider):
                                  headers={'User-Agent': user_agent})
 
     def parse_httpbinfood(self, response):
-        name = str(response.selector.xpath('//h1[@itemprop="name"]/text()').get()).split("(")[0].strip()
+        name = checkTurkishForName(str(response.selector.xpath(
+            '//h1[@itemprop="name"]/text()').get()).split("(")[0].strip())
         selectorIngredients = response.selector.xpath(
             '//div[@class="entry_content tagoninread"]/ul/li[@itemprop="ingredients"]/text()').getall()
         selectorRecipe = response.selector.xpath(
             '//div[@class="entry_content tagoninread"]/ol/li[@itemprop="ingredients"]/text()').getall()
+        selectorRecipe = clearRecipe(selectorRecipe)
         portion = response.selector.xpath(
             '//span[@itemprop="recipeYield"]/strong/text()').get()
         times = response.selector.xpath(
@@ -88,7 +120,7 @@ class ErrbackSpider(scrapy.Spider):
             "adimlar": selectorRecipe,
             "kisilik": portion,
             "hazirlama": times[0],
-            "pisirme": times[1],
+            "pisirme": times[1] if len(times) > 1 else times[0],
             "tur": foodType[1]
         })
 
@@ -97,7 +129,7 @@ class ErrbackSpider(scrapy.Spider):
             "adimlar": selectorRecipe,
             "kisilik": portion,
             "hazirlama": times[0],
-            "pisirme": times[1],
+            "pisirme": times[1] if len(times) > 1 else times[0],
             "tur": foodType[1]
         }
 
@@ -108,7 +140,7 @@ class ErrbackSpider(scrapy.Spider):
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
                 "hazirlama": times[0],
-                "pisirme": times[1],
+                "pisirme": times[1] if len(times) > 1 else times[0],
             }
         else:
             recipesExtra["yemekler"][foodType[1]][name] = {
@@ -116,7 +148,7 @@ class ErrbackSpider(scrapy.Spider):
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
                 "hazirlama": times[0],
-                "pisirme": times[1],
+                "pisirme": times[1] if len(times) > 1 else 0,
             }
 
     def errback_httpbin(self, failure):
