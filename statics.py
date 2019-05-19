@@ -85,3 +85,6 @@ ingredientFilter = ["kaşığı", "tatlı", "çorba", "tutam", "bir", "iki",
                     "cimdik", "alabildiği", "alabildiğine", "fincanı",
                     "tepeli", "yeterince", "üzeri", "arzu", "ben", "eklemedim",
                     "koymadım", "porsiyon", "kıyılmış"]
+
+# DO NOT USE DICTS ON FILTERS(I know dics are faster shut up), HASH FUNCTION IGNORES OUR TURKISH CHARACTERS
+

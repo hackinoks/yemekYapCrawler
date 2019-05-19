@@ -25,12 +25,13 @@ foodNames = []
 prefix = "https://www.nefisyemektarifleri.com/kategori/tarifler/"
 MAX_PAGE = 30
 
-old = open("old.json", "w")
-new = open("new.json", "w")
-extra = open("extra.json", "w")
+DATA_FOLDER_DIR = "data/"
 
 
-# DO NOT USE DICTS ON FILTERS, HASH FUNCTION FUCKS OUR TURKISH CHARACTERS
+old = open(DATA_FOLDER_DIR + "old.json", "w")
+new = open(DATA_FOLDER_DIR + "new.json", "w")
+extra = open(DATA_FOLDER_DIR + "extra.json", "w")
+
 
 
 def createJSON():
