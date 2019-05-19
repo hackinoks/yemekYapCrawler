@@ -34,7 +34,21 @@ nameFilter = ["tarifi", "video", "videolu", "nasıl", "yapılır", "nefis",
               "sanalı", "ustasından", "eller", "usta", "meşhur", "bol",
               "vitaminli", "vitamin", "usulü", "annem", "annemin",
               "annem'in", "kolay", "yapımı", "el", "ağızda", "dağılan",
-              "muhteşem", "ev"]
+              "muhteşem", "ev", "iftar", "iftarların", "sultanı",
+              "en", "güzel", "yemekler", "evde", "yemeye", "yemeğe",
+              "doyamayacağınız", "bütün", "tarifleri", "unutun",
+              "tam", "mevsiminde", "lokum", "düdüklüde", "düdüklü",
+              "misler", "fırında", "fırın", "sosuyla", "tadında",
+              "şahane", "yapılır", "derin", "dondurucu", "dondurucuya",
+              "buzlukta", "çocuklarınız", "bu", "tarife", "bayılacak",
+              "bayılacaklar", "dakika", "dakikada", "poşetinde",
+              "Sevmeyenine", "Bile", "Kendini", "Yedirten", "sağlıklı",
+              "pratik", "her", "derde", "deva", "kokulu", "çocuklar",
+              "tipi", "sürülebilir", "dışarıdan", "son", "tel", "için",
+              "kat", "yiyenlerden", "not", "alan", "ramazan", "ramazanın",
+              "ilk", "gününe", "günü", "az", "çok", "malzeme", "malzemeli",
+              "hazırını", "bereketli", "aratmayan", "bi", "değişik", "bir",
+              "harika", "şipşak", "şip", "şak"]
 
 
 ingredientFilter = ["kaşığı", "tatlı", "çorba", "tutam", "bir", "iki",
@@ -69,4 +83,5 @@ ingredientFilter = ["kaşığı", "tatlı", "çorba", "tutam", "bir", "iki",
                     "kaşığına", "yeteri", "bağ", "eritilmiş", "oda",
                     "sıcaklığında", "bol", "yarısı", "çeyreği", "küçükorta",
                     "cimdik", "alabildiği", "alabildiğine", "fincanı",
-                    "tepeli", "yeterince"]
+                    "tepeli", "yeterince", "üzeri", "arzu", "ben", "eklemedim",
+                    "koymadım", "porsiyon", "kıyılmış"]

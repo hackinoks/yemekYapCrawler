@@ -65,7 +65,15 @@ def checkName(s):
         for i in range(len(parsed)):
             if parsed[i].lower() == filter:
                 parsed[i] = ""
-    return " ".join(parsed)
+    return checkTurkishForName(" ".join(parsed)).strip()
+
+
+def removeSpaces(s):
+    return re.sub(' +', ' ', s)
+
+
+def removeParanthesis(s):
+    return str(re.sub("[\(\[].*?[\)\]]", "", s)).strip()
 
 
 def checkIngredientsForDb(ingredients):
@@ -188,9 +196,9 @@ class ErrbackSpider(scrapy.Spider):
                                  headers={'User-Agent': user_agent})
 
     def parse_httpbinfood(self, response):
-        name = checkTurkishForName(str(response.selector.xpath(
-            '//h1[@itemprop="name"]/text()').get()).split("(")[0].strip())
-        name = checkName(name)
+        name = str(response.selector.xpath(
+            '//h1[@itemprop="name"]/text()').get()).split("(")[0].strip()
+        name = removeSpaces(checkName(removeParanthesis(name)))
         if name in foodNames:
             return
         foodNames.append(name)
