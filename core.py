@@ -208,10 +208,11 @@ class ErrbackSpider(scrapy.Spider):
         recipesOld.append({
             "isim": name,
             "malzemeler": selectorIngredients,
+            "malzemeler_db": checkIngredientsForDb(selectorIngredients),
             "adimlar": selectorRecipe,
             "kisilik": portion,
-            "hazirlama": times[0],
-            "pisirme": times[1] if len(times) > 1 else times[0],
+            "hazirlama": 0 if len(times) == 0 else times[0],
+            "pisirme": times[1] if len(times) > 1 else 0,
             "tur": foodType[1]
         })
 
@@ -219,8 +220,8 @@ class ErrbackSpider(scrapy.Spider):
             "malzemeler": selectorIngredients,
             "adimlar": selectorRecipe,
             "kisilik": portion,
-            "hazirlama": times[0],
-            "pisirme": times[1] if len(times) > 1 else times[0],
+            "hazirlama": 0 if len(times) == 0 else times[0],
+            "pisirme": times[1] if len(times) > 1 else 0,
             "tur": foodType[1]
         }
 
@@ -231,8 +232,8 @@ class ErrbackSpider(scrapy.Spider):
                 "malzemeler_db": checkIngredientsForDb(selectorIngredients),
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
-                "hazirlama": times[0],
-                "pisirme": times[1] if len(times) > 1 else times[0],
+                "hazirlama": 0 if len(times) == 0 else times[0],
+                "pisirme": times[1] if len(times) > 1 else 0,
             }
         else:
             recipesExtra["yemekler"][foodType[1]][name] = {
@@ -240,7 +241,7 @@ class ErrbackSpider(scrapy.Spider):
                 "malzemeler_db": checkIngredientsForDb(selectorIngredients),
                 "adimlar": selectorRecipe,
                 "kisilik": portion,
-                "hazirlama": times[0],
+                "hazirlama": 0 if len(times) == 0 else times[0],
                 "pisirme": times[1] if len(times) > 1 else 0,
             }
             if foodType[1] not in foodTypes:

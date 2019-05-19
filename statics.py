@@ -33,7 +33,8 @@ nameFilter = ["tarifi", "video", "videolu", "nasıl", "yapılır", "nefis",
               "anlatım", "çok", "tane", "teremyağ", "teremyağlı", "sana",
               "sanalı", "ustasından", "eller", "usta", "meşhur", "bol",
               "vitaminli", "vitamin", "usulü", "annem", "annemin",
-              "annem'in", "kolay", "yapımı", "el", "ağızda", "dağılan"]
+              "annem'in", "kolay", "yapımı", "el", "ağızda", "dağılan",
+              "muhteşem", "ev"]
 
 
 ingredientFilter = ["kaşığı", "tatlı", "çorba", "tutam", "bir", "iki",
